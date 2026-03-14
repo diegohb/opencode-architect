@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 qForge
+Copyright (c) 2026 Expert Vision Software
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

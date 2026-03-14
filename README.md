@@ -8,7 +8,7 @@ Add to "plugin" in `.opencode/opencode.json`:
 
 ```json
 {
-  "plugin": ["@qforge/opencode-architect"]
+  "plugin": ["opencode-architect"]
 }
 ```
 
@@ -46,6 +46,8 @@ Build:
 bun run build
 ```
 
-## Notes 📝
+## Acknowledgements 🙏
 
-This project was created using `bun init` in bun v1.3.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+- [OpenCode](https://opencode.ai) - The AI coding assistant that makes this plugin possible
+- [Bun](https://bun.sh) - The fast all-in-one JavaScript runtime
+- [qforge](https://github.com/qforge) - Original developer of this project
