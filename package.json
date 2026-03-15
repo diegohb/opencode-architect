@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "@opencode-ai/plugin": "^1.2.20"
+    "@opencode-ai/plugin": "^1.2.25"
   },
   "peerDependencies": {
     "typescript": "^5"
