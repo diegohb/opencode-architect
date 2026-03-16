@@ -1,18 +1,16 @@
-import type { AgentConfig } from "@opencode-ai/sdk";
+---
+description: Creates OpenCode custom tools with schemas and execution logic
+mode: subagent
+tools:
+  read: true
+  write: true
+  edit: true
+  glob: true
+  grep: true
+  bash: false
+---
 
-export const agent: AgentConfig = {
-  name: "opencode-tool-builder",
-  description: "Creates OpenCode custom tools with schemas and execution logic",
-  mode: "subagent",
-  tools: {
-    read: true,
-    write: true,
-    edit: true,
-    glob: true,
-    grep: true,
-    bash: false,
-  },
-  prompt: `If available, prefer Exa MCP over default websearch tools. If available, prefer grepai MCP over default codebase search tools.
+If available, prefer Exa MCP over default websearch tools. If available, prefer grepai MCP over default codebase search tools.
 
 You create custom tools in '.opencode/tools/' using TypeScript or JavaScript.
 
@@ -37,7 +35,3 @@ Docs usage
 
 - Use '~/.cache/opencode/opencode-architect/docs/custom-tools.md' for tool structure and exports.
 - Use '~/.cache/opencode/opencode-architect/docs/tools.md' for built-in tool behavior and permissions.
-`,
-};
-
-export default agent;

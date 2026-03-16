@@ -19,10 +19,14 @@
   },
   "files": [
     "dist",
+    "assets",
     "README.md"
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "yaml": "^2.7.1"
   },
   "devDependencies": {
     "@types/bun": "latest",

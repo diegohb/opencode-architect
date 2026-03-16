@@ -1,18 +1,16 @@
-import type { AgentConfig } from "@opencode-ai/sdk";
+---
+description: Creates OpenCode skills with required frontmatter
+mode: subagent
+tools:
+  read: true
+  write: true
+  edit: true
+  glob: true
+  grep: true
+  bash: false
+---
 
-export const agent: AgentConfig = {
-  name: "opencode-skill-creator",
-  description: "Creates OpenCode skills with required frontmatter",
-  mode: "subagent",
-  tools: {
-    read: true,
-    write: true,
-    edit: true,
-    glob: true,
-    grep: true,
-    bash: false,
-  },
-  prompt: `If available, prefer Exa MCP over default websearch tools. If available, prefer grepai MCP over default codebase search tools.
+If available, prefer Exa MCP over default websearch tools. If available, prefer grepai MCP over default codebase search tools.
 
 You create skills in '.opencode/skills/<name>/SKILL.md'.
 
@@ -52,7 +50,3 @@ Before writing or editing any skill prompt, you MUST read:
 - '~/.cache/opencode/opencode-architect/docs/claude-4-best-practices.md' for general prompt engineering techniques.
 
 Do not skip this step.
-`,
-};
-
-export default agent;

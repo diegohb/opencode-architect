@@ -1,35 +1,64 @@
 import type { Plugin, PluginInput } from "@opencode-ai/plugin";
-
-import { agent as opencodeAgentDesigner } from "./agents/opencode-agent-designer";
-import { agent as opencodeArchitect } from "./agents/opencode-architect";
-import { agent as opencodeCommandCrafter } from "./agents/opencode-command-crafter";
-import { agent as opencodeMdpluginEngineer } from "./agents/opencode-mdplugin-engineer";
-import { agent as opencodeMcpIntegrator } from "./agents/opencode-mcp-integrator";
-import { agent as opencodePluginEngineer } from "./agents/opencode-plugin-engineer";
-import { agent as opencodeSkillCreator } from "./agents/opencode-skill-creator";
-import { agent as opencodeToolBuilder } from "./agents/opencode-tool-builder";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { parse as parseYaml } from "yaml";
+import type { AgentConfig } from "@opencode-ai/sdk";
 import { command as syncDocsCommand } from "./commands/sync-docs";
 import { OpenCodeDocsFetcher } from "./scripts/fetch-opencode-docs";
 import { SilentLogger } from "./scripts/logger";
 import { createSyncDocsTool } from "./tools/sync-docs";
+
+const AGENTS_DIR = path.join(import.meta.dirname, "assets", "agents");
+
+const FRONTMATTER_REGEX = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/;
+
+interface AgentFrontmatter {
+  description: string;
+  mode: "primary" | "subagent" | "all";
+  tools?: Record<string, boolean>;
+}
+
+async function parseAgentMarkdown(content: string, agentName: string): Promise<AgentConfig> {
+  const match = content.match(FRONTMATTER_REGEX);
+
+  if (!match || match.length < 3) {
+    throw new Error(`Agent ${agentName} must have YAML frontmatter`);
+  }
+
+  const frontmatterYaml = match[1] as string;
+  const rawPrompt = match[2] as string;
+  const frontmatter = parseYaml(frontmatterYaml) as AgentFrontmatter;
+  const prompt = rawPrompt.replace(/^\r?\n/, "");
+
+  const config: AgentConfig = {
+    description: frontmatter.description,
+    mode: frontmatter.mode,
+    prompt,
+  };
+
+  if (frontmatter.tools) {
+    config.tools = frontmatter.tools;
+  }
+
+  return config;
+}
 
 const OpencodeArchitect: Plugin = async (input) => {
   const syncDocsTool = createSyncDocsTool();
 
   syncDocsOnStartup(input.client);
 
+  const agents = await loadAgents();
+
   return {
     config: async (config) => {
       config.agent = config.agent || {};
       config.command = config.command || {};
-      config.agent["opencode-agent-designer"] = opencodeAgentDesigner;
-      config.agent["opencode-architect"] = opencodeArchitect;
-      config.agent["opencode-command-crafter"] = opencodeCommandCrafter;
-      config.agent["opencode-mdplugin-engineer"] = opencodeMdpluginEngineer;
-      config.agent["opencode-mcp-integrator"] = opencodeMcpIntegrator;
-      config.agent["opencode-plugin-engineer"] = opencodePluginEngineer;
-      config.agent["opencode-skill-creator"] = opencodeSkillCreator;
-      config.agent["opencode-tool-builder"] = opencodeToolBuilder;
+
+      for (const [name, agentConfig] of Object.entries(agents)) {
+        config.agent[name] = agentConfig;
+      }
+
       config.command["sync-docs"] = syncDocsCommand;
     },
     tool: {
@@ -39,6 +68,30 @@ const OpencodeArchitect: Plugin = async (input) => {
 };
 
 export default OpencodeArchitect;
+
+async function loadAgents(): Promise<Record<string, AgentConfig>> {
+  const agentFiles = [
+    "opencode-agent-designer.md",
+    "opencode-architect.md",
+    "opencode-command-crafter.md",
+    "opencode-mdplugin-engineer.md",
+    "opencode-mcp-integrator.md",
+    "opencode-plugin-engineer.md",
+    "opencode-skill-creator.md",
+    "opencode-tool-builder.md",
+  ];
+
+  const agents: Record<string, AgentConfig> = {};
+
+  for (const filename of agentFiles) {
+    const agentPath = path.join(AGENTS_DIR, filename);
+    const agentContent = await readFile(agentPath, "utf-8");
+    const agentName = path.basename(filename, ".md");
+    agents[agentName] = await parseAgentMarkdown(agentContent, agentName);
+  }
+
+  return agents;
+}
 
 function syncDocsOnStartup(client: PluginInput["client"]): void {
   const fetcher = new OpenCodeDocsFetcher(new SilentLogger());
