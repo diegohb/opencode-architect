@@ -6,7 +6,7 @@ This package is an OpenCode plugin that bundles a set of specialized agents and 
 
 ## How It Works
 
-The plugin entry in `index.ts` registers the agents and commands with the OpenCode plugin system. It also initializes a docs fetcher on startup and wires up a tool so the same sync can be triggered on demand. The project builds with Bun into `dist/` and publishes the compiled output for use by OpenCode.
+The plugin entry in `index.ts` registers the agents and commands with the OpenCode plugin system. It also initializes a docs fetcher on startup and wires up a tool so the same sync can be triggered on demand. The project uses TypeScript source directly with Bun's native TS support.
 
 ## Why It Works This Way
 

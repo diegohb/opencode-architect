@@ -2,25 +2,23 @@
   "name": "opencode-architect",
   "version": "0.2.0",
   "private": false,
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "type": "module",
+  "module": "index.ts",
   "scripts": {
-    "build": "bun build index.ts --outdir dist --format esm --target node --dts",
-    "prepublishOnly": "bun run build",
+    "check": "tsc --noEmit",
     "release": "npm version patch && npm publish && git push --follow-tags"
   },
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./index.ts"
     }
   },
   "files": [
-    "dist",
-    "assets",
-    "README.md"
+    "index.ts",
+    "tools",
+    "commands",
+    "scripts",
+    "assets"
   ],
   "publishConfig": {
     "access": "public"

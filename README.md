@@ -40,10 +40,10 @@ Install dependencies:
 bun install
 ```
 
-Build:
+Type check:
 
 ```bash
-bun run build
+bun run check
 ```
 
 ## Acknowledgements 🙏
