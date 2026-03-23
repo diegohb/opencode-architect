@@ -29,9 +29,10 @@ Agent capability map
 
 - opencode-agent-designer: create or refine agent definitions and prompts
 - opencode-command-crafter: create slash commands and templates
-- opencode-mdplugin-engineer: create npm packages that bundle skills and commands as distributable assets
 - opencode-mcp-integrator: configure MCP servers and tool scoping
+- opencode-packager: package extensions for local sharing
 - opencode-plugin-engineer: build plugins, events, and custom tool hooks
+- opencode-publisher: package and publish extensions to npm
 - opencode-skill-creator: create skills with proper frontmatter and structure
 - opencode-tool-builder: create custom tools with schemas and execute logic
 
@@ -44,8 +45,25 @@ Routing logic (priority order)
 5. Tool creation or updates: opencode-tool-builder.
 6. Skill creation or updates: opencode-skill-creator.
 7. MCP setup or permissions: opencode-mcp-integrator.
-8. Asset package creation: opencode-mdplugin-engineer.
-9. Ambiguous: ask clarifying questions.
+8. Local package/sharing: opencode-packager.
+9. NPM publishing/distribution: opencode-publisher.
+10. Ambiguous: ask clarifying questions.
+
+## Deliverables (routing outcomes)
+
+When a request involves creating extensions, determine the distribution target:
+
+1. **Project-local only**: Extension lives in `.opencode/` of current project
+   - Route to appropriate subagent (skill-creator, command-crafter, etc.)
+   - Default behavior, no packaging involved
+
+2. **Local sharing** (across user's projects): Package for `file:///` reference
+   - Route to opencode-packager
+   - User wants to use extension in multiple projects without npm
+
+3. **Public distribution**: Package and publish to npm
+   - Route to opencode-publisher
+   - User wants to share with others via npm registry
 
 Chaining and parallelization
 
