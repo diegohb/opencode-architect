@@ -1,0 +1,28 @@
+TEMPLATE INSTRUCTIONS
+====================
+Replace the following placeholders before use:
+
+PACKAGE NAME
+  "opencode-myextension"     → your extension name (e.g., "opencode-mytool")
+  "myextension"              → skill/extension identifier (e.g., "mytool")
+
+VERSION
+  "1.0.0"                    → initial version
+
+PATHS
+  "skills/myextension"       → path to your skill assets
+  "commands/my-command.md"   → path to your command file
+
+METADATA
+  "Publisher Name"           → your name or organization
+  "email@example.com"        → your email
+  "https://github.com/org/opencode-myextension.git" → your repo URL
+
+---
+{
+  "name": "opencode-myextension",
+  "version": "1.0.0",
+  "type": "module",
+  "module": "index.ts",
+  "files": ["index.ts", "plugin.ts", "assets"]
+}
