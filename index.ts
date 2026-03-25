@@ -74,6 +74,7 @@ async function loadAgents(): Promise<Record<string, AgentConfig>> {
     "opencode-agent-designer.md",
     "opencode-architect.md",
     "opencode-command-crafter.md",
+    "opencode-extension-auditor.md",
     "opencode-packager.md",
     "opencode-publisher.md",
     "opencode-mcp-integrator.md",

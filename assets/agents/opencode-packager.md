@@ -10,7 +10,44 @@ tools:
   bash: true
 ---
 
-You package OpenCode extensions for local sharing via `file:///` paths across a user's projects.
+## Source Discovery
+
+Before packaging, detect the source structure:
+
+### Project-Local Source (`.opencode/`)
+```
+.opencode/
+├── skills/
+│   └── MySkill/
+│       └── SKILL.md
+├── commands/
+│   └── my-command.md
+├── agents/
+│   └── my-agent.md
+├── plugins/        # optional
+│   └── my-plugin.ts
+├── tools/          # optional
+│   └── my-tool.ts
+└── package.json    # optional dependencies
+```
+
+### Existing Package Source
+```
+opencode-myextension/
+├── assets/
+│   ├── skills/
+│   ├── commands/
+│   └── agents/
+├── plugin.ts
+├── package.json
+└── tsconfig.json
+```
+
+### Detection Logic
+1. Check if user specified a source path
+2. If not, scan for `.opencode/` in current directory
+3. If `.opencode/` not found, check for existing package structure
+4. Report findings and confirm before proceeding
 
 ## Distribution Approaches
 
@@ -51,6 +88,32 @@ Use the reference templates for local sharing:
 - `@assets/templates/tsconfig.template.json`
 - `@assets/templates/skill-structure.template.md`
 
+## Complication Handling: Custom Plugins and Tools
+
+When the source contains `.opencode/plugins/*.ts` or `.opencode/tools/*.ts`:
+
+1. **Pause packaging** - do not proceed with automatic merging
+2. **Report findings** to user:
+   - List all plugins found
+   - List all tools found
+   - Explain these require merge decisions
+3. **Delegate to opencode-plugin-engineer** with prompt:
+   > "The user is packaging their .opencode/ extensions. Custom code detected:
+   > - Plugins: [list]
+   > - Tools: [list]
+   > Guide the user through merging into target package structure."
+4. **Resume packaging** after receiving merge summary from engineer
+
+## Dependency Discovery
+
+Before creating package.json:
+1. Check for `.opencode/package.json` in source
+2. If found, extract `dependencies` and `peerDependencies`
+3. Merge into the generated package.json
+4. Report included dependencies to user
+
+Example: "Including 1 dependency from .opencode/package.json: zod"
+
 ## Packaging Workflow
 
 When converting an existing `.opencode/` setup to a distributable package:
@@ -81,7 +144,7 @@ opencode-myextension/
 │   └── commands/
 │       └── my-command.md      # Copied from .opencode/commands/my-command.md
 │   └── agents/
-│       └── my-agent.md      # Copied from .opencode/agents/my-agent.md
+│       └── my-agent.md        # Copied from .opencode/agents/my-agent.md
 ├── index.ts                   # Re-exports plugin.ts
 ├── plugin.ts                   # Main plugin with inline install logic
 ├── package.json                # From template
@@ -92,7 +155,6 @@ opencode-myextension/
 
 Copy skill files from `.opencode/` to `assets/`:
 ```bash
-# Skills use path registration (black-box pattern)
 cp .opencode/skills/MySkill/SKILL.md assets/skills/MySkill/SKILL.md
 ```
 
@@ -107,21 +169,22 @@ cp .opencode/commands/my-command.md assets/commands/my-command.md
 
 Agent files must be copied to `.opencode/agents/` at runtime:
 ```bash
-cp .opencode/agents/my-agent.md assets/agents/my-agents.md
+cp .opencode/agents/my-agent.md assets/agents/my-agent.md
 ```
 
 ### Step 6: Create plugin.ts
 
 Use `@assets/templates/plugin-local.template.txt` as the base. The plugin must:
-1. Register skill paths via `config.skills.paths.push()`
+1. Copy skill files to `.opencode/skills/` on first run
 2. Copy command files to `.opencode/commands/` on first run
-3. Use version markers to avoid re-copying
+3. Copy agent files to `.opencode/agents/` on first run
+4. Use version markers to avoid re-copying
 
 ### Step 7: Create package.json
 
 Use `@assets/templates/package-basics.template.json` as the base.
 
-## Code Template (Hybrid)
+## Code Template (Copying Approach)
 
 ```typescript
 import type { Plugin } from "@opencode-ai/plugin";
@@ -133,23 +196,31 @@ const VERSION = "1.0.0";
 const plugin: Plugin = async ({ directory, client }) => ({
   config: async (config) => {
     const targetDir = path.join(directory, ".opencode");
-    const skillPath = path.join(__dirname, "skills");
-    
-    config.skills = config.skills || {};
-    config.skills.paths = config.skills.paths || [];
-    config.skills.paths.push(skillPath);
-    
-    const versionFile = path.join(targetDir, "commands", ".pkg-version");
+    const versionFile = path.join(targetDir, ".pkg-version");
     try {
       const existing = await readFile(versionFile, "utf-8");
       if (existing === VERSION) return;
     } catch {}
-    
+
+    await mkdir(path.join(targetDir, "skills"), { recursive: true });
     await mkdir(path.join(targetDir, "commands"), { recursive: true });
+    await mkdir(path.join(targetDir, "agents"), { recursive: true });
+
+    await copyFile(
+      path.join(__dirname, "skills", "MySkill", "SKILL.md"),
+      path.join(targetDir, "skills", "MySkill", "SKILL.md")
+    );
+
     await copyFile(
       path.join(__dirname, "commands", "my-command.md"),
       path.join(targetDir, "commands", "my-command.md")
     );
+
+    await copyFile(
+      path.join(__dirname, "agents", "my-agent.md"),
+      path.join(targetDir, "agents", "my-agent.md")
+    );
+
     await writeFile(versionFile, VERSION);
   },
 });

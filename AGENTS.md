@@ -16,6 +16,54 @@ The plugin model lets OpenCode discover and load the agents and commands without
 
 Use the README for install/build steps and follow the coding best practices in this file. Keep agents, tools, and commands focused and cohesive, add new classes in separate files, and prefer descriptive names over comments. When adding a new agent or command, wire it through the plugin entry so it is available at runtime, and ensure docs sync behavior stays intact.
 
+## Meta-Project Context
+
+This package is a meta-project: agents created here produce instructions consumed by OTHER agents in end-users' projects. When you write agent prompts, skill instructions, or command templates, you are writing for agents that will be invoked by users who may not know OpenCode internals.
+
+### The Happy Path
+
+1. **User creates extensions** via `opencode-architect` delegating to specialist agents (skill-creator, command-crafter, agent-designer, plugin-engineer, tool-builder, mcp-integrator). Outputs default to `.opencode/`:
+   - Skills at `.opencode/skills/<name>/SKILL.md`
+   - Commands at `.opencode/commands/<name>.md`
+   - Agents at `.opencode/agents/<name>.md`
+   - Plugins at `.opencode/plugins/<name>.ts`
+   - Tools at `.opencode/tools/<name>.ts`
+
+2. **User iterates** on extensions based on usage feedback
+
+3. **User wants reuse across projects** → delegates to `opencode-packager`:
+   - Extracts `.opencode/` assets into a distributable package structure
+   - Copies skills/commands/agents to `assets/` so consumers can view and edit
+   - Creates `plugin.ts`, `package.json`, `tsconfig.json`
+
+4. **User wants to share publicly** → `opencode-architect` hands off to `opencode-publisher`:
+   - Transforms local package into npm-ready structure
+   - Adds CLI entry point, extracts installer module
+   - Publishes to npm registry
+
+### Opinionated Design: Copying for Transparency
+
+Skills, commands, and agents are COPIED to consumer's `.opencode/` rather than registered via `config.skills.paths`. This is intentional so end-users can see, read, and modify extension content locally. Plugins and tools remain as TypeScript code in the package.
+
+### When Complications Arise
+
+Custom plugins and tools in `.opencode/plugins/` or `.opencode/tools/` require merging during packaging. The packager delegates to `opencode-plugin-engineer` to guide the user through merge decisions.
+
+### Agent Categories
+
+| Category      | Agents                                         | Default Output         |
+| ------------- | ---------------------------------------------- | ---------------------- |
+| Creators      | skill-creator, command-crafter, agent-designer | `.opencode/`             |
+| Engineers     | plugin-engineer, tool-builder, mcp-integrator  | `.opencode/`             |
+| Distribution  | packager, publisher                            | New package directory  |
+| Orchestration | architect                                      | Delegates to others    |
+
+### Distribution Decision Tree
+
+1. **Project-local only?** → No packaging
+2. **Reuse across own projects?** → `opencode-packager` (local `file:///` package)
+3. **Share with others?** → `opencode-packager` → `opencode-publisher` (npm)
+
 ## Function Declarations
 
 Prefer `function` syntax over arrow functions assigned to variables:
