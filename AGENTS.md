@@ -6,6 +6,7 @@
   <rule>STOP immediately on test failure</rule>
   <rule>Confirm before cleaning up files</rule>
   <rule>Enforce global agent rules on every run</rule>
+  <rule>Lazy-load external file references denoted by '@' in markdown files. See `<external_file_loading />`.</rule>
 </critical_rules>
 
 <external_file_loading policy="lazy">
