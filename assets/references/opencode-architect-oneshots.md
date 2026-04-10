@@ -288,3 +288,42 @@ export const agent: AgentConfig = {
   `
 }
 ```
+
+---
+
+## Example 8: Extract Quality Baseline Pattern
+
+**User Request:**
+> I've built a quality baseline check in my project that runs lint, tests, and coverage on every commit. I want to extract this into a reusable skill I can use across all my projects.
+
+**Analysis:**
+- Extraction workflow: analyze existing pattern → generalize → package
+- Existing pattern in .opencode/ → `opencode-extension-auditor`
+- Generalize into skill → `opencode-skill-creator`
+- Package for local sharing → `opencode-packager`
+
+**Execution:**
+1. Sequential: `opencode-extension-auditor` (analyze what exists in .opencode/)
+2. Sequential: `opencode-skill-creator` (generalize into a skill)
+3. Ask: "Would you like to package this for local sharing across projects?"
+4. If yes, Sequential: `opencode-packager` (create distributable package)
+
+---
+
+## Example 9: Extract and Publish MCP Toolset
+
+**User Request:**
+> I created some MCP tools in my company's internal repo. I want to extract them, package them as a local package, and eventually publish to our org's npm.
+
+**Analysis:**
+- Extraction + packaging + publishing pipeline
+- MCP tools already configured → audit the MCP setup
+- Extract tools into a plugin package → `opencode-packager`
+- Publish to org npm → `opencode-publisher`
+
+**Execution:**
+1. Sequential: `opencode-extension-auditor` (analyze MCP server configuration and tools)
+2. Sequential: `opencode-plugin-engineer` (if MCP tools need refactoring into a proper plugin)
+3. Sequential: `opencode-packager` (package for local sharing first)
+4. Ask: "Package ready. Publish to npm?"
+5. If yes, Sequential: `opencode-publisher` (transform and publish)

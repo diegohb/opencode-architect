@@ -52,6 +52,11 @@ When starting check for docs availability. If '~/.cache/opencode/opencode-archit
 9. Local package/sharing: opencode-packager.
 10. NPM publishing/distribution: opencode-publisher.
 11. Ambiguous: ask clarifying questions.
+12. Pattern extraction/generalization: 
+    - User wants to take a project-specific pattern and make it reusable
+    - Delegate to opencode-extension-auditor first for analysis
+    - Then route to appropriate creator(s) to generalize
+    - Finally optionally route to opencode-packager if cross-project distribution wanted
 
 ## Deliverables (routing outcomes)
 
@@ -84,6 +89,7 @@ Suggest packaging when `.opencode/` contains:
 
 ### When to Suggest
 - After user successfully creates/updates an extension
+- After extraction workflow completes (Step 2 generalizes a pattern)
 - When user asks about their extensions
 - When context suggests user is iterating on a workflow
 
@@ -150,6 +156,51 @@ Tasks:
 - NEVER let packager invoke publisher directly
 - This allows user review and decision at each stage
 - Only chain sequentially when steps depend on earlier output
+
+## Extraction Workflow
+
+For requests like "extract my X pattern", "make my X reusable", "generalize my X", or "package what I built for X":
+
+### Trigger Conditions
+- User mentions extracting a project-specific pattern into a reusable extension
+- User wants to generalize an existing workflow for use across multiple projects
+- User built something in `.opencode/` they want to make shareable
+
+### Workflow Steps
+
+#### Step 1: Analyze with Auditor
+Delegate to `opencode-extension-auditor` to scan `.opencode/` and understand the existing pattern:
+```
+Prompt: "Analyze the user's .opencode/ directory to identify and document their pattern(s) for extraction. Focus on: what the pattern does, what files implement it, what dependencies it has, and what makes it project-specific vs reusable. Return a structured inventory with specificity assessment."
+```
+
+#### Step 2: Generalize with Appropriate Creator(s)
+Based on auditor findings, route to the right creator(s):
+- Skills found → opencode-skill-creator (to generalize the skill)
+- Commands found → opencode-command-crafter (to generalize the command)
+- Agent patterns found → opencode-agent-designer (to formalize the agent)
+- If multiple: use parallel tasks
+
+#### Step 3: Package if Requested
+If user wants cross-project sharing, route to opencode-packager:
+```
+Prompt: "Package the newly generalized extension from [auditor findings location] for local sharing.
+Target directory: ./opencode-[extension-name]/
+Return: summary of created files, included assets, dependencies, and any issues."
+```
+
+### When to Use
+- User says "extract", "generalize", "make reusable", "make it work across projects"
+- User describes a pattern they've built and wants to package
+- After auditor analysis confirms extractable patterns exist
+
+### When NOT to Use
+- User explicitly wants only a new extension (no existing pattern to extract) → use regular creator directly
+- User explicitly wants npm publishing → go straight to opencode-publisher
+- User is building something new from scratch (not extracting from existing) → use regular creators
+
+### Return to Orchestrator
+After extraction workflow completes, always return to architect. Ask user if they want packaging, publishing, or further refinement.
 
 ## Chaining and parallelization
 

@@ -16,6 +16,13 @@ interface AgentFrontmatter {
   description: string;
   mode: "primary" | "subagent" | "all";
   tools?: Record<string, boolean>;
+  permission?: {
+    edit?: "ask" | "allow" | "deny";
+    bash?: ("ask" | "allow" | "deny") | Record<string, "ask" | "allow" | "deny">;
+    webfetch?: "ask" | "allow" | "deny";
+    doom_loop?: "ask" | "allow" | "deny";
+    external_directory?: "ask" | "allow" | "deny";
+  };
 }
 
 async function parseAgentMarkdown(content: string, agentName: string): Promise<AgentConfig> {
@@ -38,6 +45,10 @@ async function parseAgentMarkdown(content: string, agentName: string): Promise<A
 
   if (frontmatter.tools) {
     config.tools = frontmatter.tools;
+  }
+
+  if (frontmatter.permission) {
+    config.permission = frontmatter.permission;
   }
 
   return config;
