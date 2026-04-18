@@ -1,0 +1,15 @@
+TEMPLATE INSTRUCTIONS
+====================
+Replace the following placeholders before use:
+
+EXTENSION NAME
+  "myextension"  → your extension identifier (e.g., "mytool")
+
+SKILL NAME
+  "myextension"  → must match the folder name in assets/skills/
+
+COMMAND NAME
+  "my-command.md" → your command file name in assets/commands/
+
+---
+export { default } from "./plugin.ts";

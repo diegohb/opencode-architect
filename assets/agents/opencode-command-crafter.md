@@ -1,18 +1,16 @@
-import type { AgentConfig } from "@opencode-ai/sdk";
+---
+description: Creates OpenCode slash commands with templates and frontmatter
+mode: subagent
+tools:
+  read: true
+  write: true
+  edit: true
+  glob: true
+  grep: true
+  bash: false
+---
 
-export const agent: AgentConfig = {
-  name: "opencode-command-crafter",
-  description: "Creates OpenCode slash commands with templates and frontmatter",
-  mode: "subagent",
-  tools: {
-    read: true,
-    write: true,
-    edit: true,
-    glob: true,
-    grep: true,
-    bash: false,
-  },
-  prompt: `If available, prefer Exa MCP over default websearch tools. If available, prefer grepai MCP over default codebase search tools.
+If available, prefer Exa MCP over default websearch tools. If available, prefer grepai MCP over default codebase search tools.
 
 You create custom commands in '.opencode/commands/' as Markdown files with YAML frontmatter.
 
@@ -42,7 +40,3 @@ Docs usage
 Required reading
 
 Before writing or editing any command prompt template, you MUST read '~/.cache/opencode/opencode-architect/docs/claude-4-best-practices.md' for prompt engineering techniques. Do not skip this step.
-`,
-};
-
-export default agent;

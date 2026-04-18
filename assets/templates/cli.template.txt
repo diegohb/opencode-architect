@@ -1,0 +1,109 @@
+TEMPLATE INSTRUCTIONS
+====================
+Replace the following placeholders before use:
+
+CLI NAME
+  "opencode-myextension" → your CLI command name (matches package.json bin field)
+
+VERSION
+  "1.0.0"                → initial version
+
+COMMANDS
+  "install"               → install subcommand
+  "uninstall"             → uninstall subcommand
+  "status"                → status subcommand
+
+SCOPE
+  "local"                → default scope when --scope not specified
+
+---
+#!/usr/bin/env bun
+import { parseArgs } from "node:util";
+import { install, uninstall, status, type Scope } from "./src/installer.ts";
+
+const VERSION = JSON.parse(
+  await Bun.file(`${import.meta.dirname}/../package.json`).text()
+).version;
+
+function printHelp(): void {
+  console.log(`
+opencode-myextension v${VERSION}
+
+Commands:
+  install     Install the myextension skill and command
+  uninstall   Remove the myextension skill and command
+  status      Check installation status
+
+Options:
+  -s, --scope <scope>    Installation scope: "local" or "global"
+  -f, --force           Skip confirmation prompts
+  -h, --help            Show this help message
+  -v, --version         Show version
+
+Examples:
+  opencode-myextension install
+  opencode-myextension install --scope global
+  opencode-myextension uninstall --scope local
+  opencode-myextension status
+`);
+}
+
+async function main(): Promise<void> {
+  const { positionals, values } = parseArgs({
+    options: {
+      scope: { type: "string", short: "s" },
+      force: { type: "boolean", short: "f", default: false },
+      help: { type: "boolean", short: "h", default: false },
+      version: { type: "boolean", short: "v", default: false },
+    },
+    allowPositionals: true,
+    strict: true,
+  });
+
+  if (values.version) { console.log(`opencode-myextension v${VERSION}`); process.exit(0); }
+  if (values.help || positionals.length === 0) { printHelp(); process.exit(0); }
+
+  const command = positionals[0];
+  const scope: Scope | undefined = values.scope as Scope | undefined;
+  const force: boolean = values.force;
+
+  if (scope && scope !== "local" && scope !== "global") {
+    console.error(`Invalid scope: ${scope}. Must be "local" or "global".`);
+    process.exit(1);
+  }
+
+  try {
+    switch (command) {
+      case "install": {
+        const installScope = scope || "local";
+        const result = await install(installScope, process.cwd());
+        console.log(`Installed ${installScope}:`);
+        console.log(`  Skill: ${result.skillPath}`);
+        console.log(`  Command: ${result.commandPath}`);
+        if (result.migrated) console.log(`  Migrated: opencode.json → .opencode/opencode.json`);
+        break;
+      }
+      case "uninstall": {
+        const uninstallScope = scope || "local";
+        const result = await uninstall(uninstallScope, process.cwd());
+        console.log(`Uninstalled ${uninstallScope}:`);
+        console.log(`  Removed: ${result.removed.join(", ")}`);
+        break;
+      }
+      case "status": {
+        const result = await status(process.cwd());
+        console.log("Status:");
+        if (result.local) console.log(`  Local: installed=${result.local.installed}, version=${result.local.version}`);
+        if (result.global) console.log(`  Global: installed=${result.global.installed}, version=${result.global.version}`);
+        break;
+      }
+      default: console.error(`Unknown command: ${command}`); printHelp(); process.exit(1);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Error: ${message}`);
+    process.exit(1);
+  }
+}
+
+main();

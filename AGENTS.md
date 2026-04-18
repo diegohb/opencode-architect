@@ -1,78 +1,113 @@
-# Coding Best Practices
+# AGENTS.md
 
-## What This Product Is
+<critical_rules priority="highest">
+  <rule>ALWAYS request approval before ANY execution</rule>
+  <rule>NEVER auto-fix issues without explicit user approval</rule>
+  <rule>STOP immediately on test failure</rule>
+  <rule>Confirm before cleaning up files</rule>
+  <rule>Enforce global agent rules on every run</rule>
+  <rule>Lazy-load external file references denoted by '@' in markdown files. See `<external_file_loading />`.</rule>
+</critical_rules>
 
-This package is an OpenCode plugin that bundles a set of specialized agents and utilities for building OpenCode projects. It registers expert agents for architecture, agent design, command crafting, MCP integration, plugin engineering, skill creation, and tool building. It also exposes a `sync-docs` command and tool to fetch OpenCode documentation, and it syncs docs automatically at startup with a toast error if the sync fails.
+<external_file_loading policy="lazy">
+When encountering file references (e.g., @references/workflow.md), use Read tool on demand. Loaded content overrides defaults. Follow references recursively when needed.
+</external_file_loading>
 
-## How It Works
+<context_hierarchy>
+  <system_context>OpenCode plugin bundling specialized agents and utilities</system_context>
+  <domain_context>Architecture, agent design, command crafting, MCP integration, plugin engineering, skill creation, tool building</domain_context>
+  <task_context>Meta-project producing instructions consumed by OTHER agents in end-users' projects</task_context>
+  <execution_context>TypeScript with Bun native TS support, ESM output</execution_context>
+</context_hierarchy>
 
-The plugin entry in `index.ts` registers the agents and commands with the OpenCode plugin system. It also initializes a docs fetcher on startup and wires up a tool so the same sync can be triggered on demand. The project builds with Bun into `dist/` and publishes the compiled output for use by OpenCode.
+<role>
+  <identity>opencode-architect plugin</identity>
+  <capabilities>Agent orchestration, plugin registration, docs sync, command/tool exposure</capabilities>
+  <scope>Creating and distributing OpenCode extensions (skills, commands, agents, plugins, tools)</scope>
+  <constraints>Copy transparency for skills/commands/agents; TypeScript plugins/tools in package</constraints>
+</role>
 
-## Why It Works This Way
+<product_overview>
+  <entry_point>index.ts</entry_point>
+  <auto_init>docs fetcher on startup, sync-docs tool on demand</auto_init>
+  <build_output>ESM + type declarations</build_output>
+</product_overview>
 
-The plugin model lets OpenCode discover and load the agents and commands without extra wiring. Centralizing the registration in the entry file keeps the integration surface clear, while automatic doc sync keeps prompt and coding guidance current for the bundled agents. The build step ensures the package ships stable ESM output and type declarations for downstream consumers.
+<happy_path>
+  <stage name="Create">
+    - User creates extensions via delegation to specialist agents
+    - skill-creator, command-crafter, agent-designer, plugin-engineer, tool-builder, mcp-integrator
+    - Default outputs: `.opencode/skills/<name>/SKILL.md`, `.opencode/commands/<name>.md`, `.opencode/agents/<name>.md`, `.opencode/plugins/<name>.ts`, `.opencode/tools/<name>.ts`
+  </stage>
+  <stage name="Iterate">
+    - User refines extensions based on usage feedback
+  </stage>
+  <stage name="Package">
+    - For cross-project reuse: delegate to `opencode-packager`
+    - Extracts `.opencode/` assets, copies to `assets/`, creates `plugin.ts`, `package.json`, `tsconfig.json`
+  </stage>
+  <stage name="Publish">
+    - For public sharing: `opencode-architect` → `opencode-publisher`
+    - Transforms to npm-ready structure, adds CLI entry point, extracts installer module
+  </stage>
+</happy_path>
 
-## Contributing
+<distribution_decision_tree>
+  <option trigger="project_local_only">No packaging required</option>
+  <option trigger="reuse_own_projects">opencode-packager (local file:/// package)</option>
+  <option trigger="share_publicly">opencode-packager → opencode-publisher (npm registry)</option>
+</distribution_decision_tree>
 
-Use the README for install/build steps and follow the coding best practices in this file. Keep agents, tools, and commands focused and cohesive, add new classes in separate files, and prefer descriptive names over comments. When adding a new agent or command, wire it through the plugin entry so it is available at runtime, and ensure docs sync behavior stays intact.
+<agent_categories>
+  <category name="Creators">
+    <agents>skill-creator, command-crafter, agent-designer</agents>
+    <output>.opencode/</output>
+  </category>
+  <category name="Engineers">
+    <agents>plugin-engineer, tool-builder, mcp-integrator</agents>
+    <output>.opencode/</output>
+  </category>
+  <category name="Distribution">
+    <agents>packager, publisher</agents>
+    <output>New package directory</output>
+  </category>
+  <category name="Orchestration">
+    <agents>architect</agents>
+    <output>Delegates to others</output>
+  </category>
+</agent_categories>
 
-## Function Declarations
+<design_principles>
+  <principle name="Copying_for_Transparency">
+    - Skills, commands, agents COPYED to consumer's `.opencode/` (not via config.skills.paths)
+    - End-users can see, read, modify extension content locally
+    - Plugins and tools remain as TypeScript in package
+  </principle>
+  <principle name="Merger_Complexity">
+    - Custom plugins/tools in `.opencode/plugins/` or `.opencode/tools/` require merge decisions during packaging
+    - Packager delegates to `opencode-plugin-engineer` for guidance
+  </principle>
+</design_principles>
 
-Prefer `function` syntax over arrow functions assigned to variables:
+<coding_guidelines>
+  - For detailed code style rules, execute read on `@docs/coding-standards.md`
+</coding_guidelines>
 
-```typescript
-// Preferred
-function processData(input: string): string {
-  return input.trim();
-}
+<file_structure_conventions>
+  - Keep agents, tools, commands focused and cohesive
+  - Add new classes in separate files
+  - Prefer descriptive names over comments
+  - Wire new agents/commands through plugin entry for runtime availability
+</file_structure_conventions>
 
-// Avoid
-const processData = (input: string): string => {
-  return input.trim();
-};
-```
+<principles>
+  <lean>Concise, focused responses; no unnecessary preamble</lean>
+  <adaptive>Tone-match: direct for tasks, brief for questions</adaptive>
+  <safe>ALWAYS request approval before ANY execution</safe>
+  <report_first>On errors: REPORT → PLAN → APPROVAL → FIX</report_first>
+  <lazy>Files and sessions only as needed</lazy>
+</principles>
 
-## Helper Function Placement
-
-Place helper functions below their first usage and rely on hoisting. This keeps the main logic at the top of the file for better readability:
-
-```typescript
-// Main export or entry point first
-export function main(): void {
-  const result = helperFunction();
-  console.log(result);
-}
-
-// Helper functions below
-function helperFunction(): string {
-  return "helper result";
-}
-```
-
-## No Comments
-
-Do not leave comments in code. Use descriptive method and variable names instead.
-
-## Classes Over Helpers
-
-Encapsulate related logic in classes with private methods instead of creating standalone helper functions.
-
-## Nullable Over Optional
-
-Avoid optional fields in types and interfaces. Use explicit nullable types:
-
-```typescript
-// Preferred
-interface Config {
-  value: string | null;
-}
-
-// Avoid
-interface Config {
-  value?: string;
-}
-```
-
-## New Classes in Separate Files
-
-When adding new classes, place each class in its own file instead of embedding new class declarations in large modules.
+<index>
+  <file name="@docs/coding-standards.md" description="Detailed TypeScript coding standards, function syntax, class patterns, nullable types" />
+</index>

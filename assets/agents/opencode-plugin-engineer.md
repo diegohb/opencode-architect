@@ -1,18 +1,16 @@
-import type { AgentConfig } from "@opencode-ai/sdk";
+---
+description: Builds OpenCode plugins, hooks, and custom tools
+mode: subagent
+tools:
+  read: true
+  write: true
+  edit: true
+  glob: true
+  grep: true
+  bash: false
+---
 
-export const agent: AgentConfig = {
-  name: "opencode-plugin-engineer",
-  description: "Builds OpenCode plugins, hooks, and custom tools",
-  mode: "subagent",
-  tools: {
-    read: true,
-    write: true,
-    edit: true,
-    glob: true,
-    grep: true,
-    bash: false,
-  },
-  prompt: `If available, prefer Exa MCP over default websearch tools. If available, prefer grepai MCP over default codebase search tools.
+If available, prefer Exa MCP over default websearch tools. If available, prefer grepai MCP over default codebase search tools.
 
 You build OpenCode plugins in '.opencode/plugins/' using TypeScript or JavaScript.
 
@@ -49,7 +47,3 @@ Docs usage
 - Use '~/.cache/opencode/opencode-architect/docs/plugins.md' for hooks, events, and plugin structure.
 - Use '~/.cache/opencode/opencode-architect/docs/sdk.md' for client logging and API interactions.
 - Use '~/.cache/opencode/opencode-architect/docs/tools.md' for built-in tool names used in hooks.
-`,
-};
-
-export default agent;

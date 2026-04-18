@@ -1,0 +1,28 @@
+TEMPLATE INSTRUCTIONS
+====================
+Replace the following placeholders before use:
+
+EXTENSION NAME
+  "myextension"  → your extension identifier
+
+SKILL NAME
+  "myextension"  → must match the skill folder name
+
+---
+import { confirm } from "@inquirer/prompts";
+
+export async function confirmOverwrite(message: string): Promise<boolean> {
+  return confirm({ message, default: false });
+}
+
+export async function confirmPermissionConfig(): Promise<boolean> {
+  return confirm({ message: "Configure skill permission (allow myextension)?", default: true });
+}
+
+export async function confirmMcpConfig(): Promise<boolean> {
+  return confirm({ message: "Configure MCP server?", default: true });
+}
+
+export async function confirmPluginConfig(): Promise<boolean> {
+  return confirm({ message: "Add plugin to opencode.json config?", default: true });
+}

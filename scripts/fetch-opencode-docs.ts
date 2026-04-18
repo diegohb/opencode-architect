@@ -1,4 +1,4 @@
-import { access, mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -186,14 +186,6 @@ export class OpenCodeDocsFetcher {
     return `${normalized}.md`;
   }
 
-  private async fileExists(filePath: string): Promise<boolean> {
-    try {
-      await access(filePath);
-      return true;
-    } catch {
-      return false;
-    }
-  }
 }
 
 if (import.meta.main) {
