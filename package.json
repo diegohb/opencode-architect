@@ -1,9 +1,19 @@
 {
   "name": "opencode-architect",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": false,
   "type": "module",
   "module": "index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/diegohb/opencode-architect.git"
+  },
+  "publisher": "Expert Vision Software",
+  "author": "Expert Vision Support <support@expertvision.software>",
+  "bugs": {
+    "url": "https://github.com/diegohb/opencode-architect/issues",
+    "email": "support@expertvision.software"
+  },
   "scripts": {
     "check": "tsc --noEmit",
     "release": "npm version patch && npm publish && git push --follow-tags"
@@ -20,9 +30,6 @@
     "scripts",
     "assets"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "dependencies": {
     "yaml": "^2.7.1"
   },
