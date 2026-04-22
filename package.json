@@ -1,6 +1,6 @@
 {
   "name": "opencode-architect",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": false,
   "type": "module",
   "module": "index.ts",
@@ -19,9 +19,7 @@
     "release": "npm version patch && npm publish && git push --follow-tags"
   },
   "exports": {
-    ".": {
-      "import": "./index.ts"
-    }
+    "./server": "./index.ts"
   },
   "files": [
     "index.ts",
